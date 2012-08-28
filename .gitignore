@@ -1,0 +1,5 @@
+*.pyc
+tree.png
+behaviorgraph.png
+analyses
+adb_logcat.log
