@@ -55,11 +55,10 @@ emulator -avd $AVD -system images/system.img -ramdisk images/ramdisk.img -kernel
 echo $! > $PIDFILE
 
 # need to wait because we need a started emulator...
-./wait.sh 100
+./wait.sh 105
 
 # because droidbox will now terminate correctly, no need for killing after
 ./droidbox.sh $1 $TIME | tee droidbox.log
-echo "droidbox time is over..:"
 
 cleanup
 report
