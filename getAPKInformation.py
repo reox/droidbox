@@ -91,6 +91,8 @@ for apk_file in args.filename:
         if args.ma:
             for i in a.xml :
                 for item in a.xml[i].getElementsByTagName("activity") :
-                    for sitem in item.getElementsByTagName( "action" ) :
+		    for sitem in item.getElementsByTagName("action"):
                         if sitem.getAttribute("android:name") == "android.intent.action.MAIN":
-                            print item.getAttribute( "android:name" )
+                            for citem in item.getElementsByTagName("category"):
+                                if citem.getAttribute("android:name") == "android.intent.category.LAUNCHER":
+                                    print item.getAttribute("android:name")

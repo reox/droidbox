@@ -65,9 +65,9 @@ echo $! >> $PIDFILE
 
 # install the package
 adb install $NEWAPP
-# now start the view activity
-# TODO which Activity to start?
-adb shell "am start -a android.intent.action.VIEW -n $(./getAPKInformation.py -ap -va -f /home/reox/Desktop/D363.apk | xargs | tr ' ' /)"
+
+# now start the main activity
+adb shell "am start -a android.intent.action.MAIN -n $(./getAPKInformation.py -ap -ma -f $NEWAPP | xargs | tr ' ' /)"
 # Now wait and gather logs...
 ./wait.sh $TIME
 
