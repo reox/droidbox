@@ -7,7 +7,6 @@
 AVD=Analyse
 TIME=60
 PIDFILE=emu.pid
-PACKAGE=$(aapt dump badging $1 | egrep package | egrep -o "name.*" | cut -d "'" -f 2)
 
 # automated screenshots every 10 seconds
 # will not work for emulators > 2.1!
@@ -21,17 +20,20 @@ function screenshooter {
     done
 }
 
+# report <repacked apk> <orginal apk>
 function report {
 	# create analyses report
-	FOLDER=report_$(date +%F_%H%M%S)
-	mkdir analyses/$FOLDER
+	FOLDER=analyses/report_$(date +%F_%H%M%S)
+	mkdir $FOLDER
 
-	mv droidbox.log analyses/$FOLDER
-	mv *.png analyses/$FOLDER
-	cp $1 analyses/$FOLDER/suspect.apk
+	mv adb_logcat.log $FOLDER
+	mv droidbox.log $FOLDER
+	mv *.png $FOLDER
+	cp $1 $FOLDER/suspect_repack.apk
+ 	cp $2 $FOLDER/suspect.apk
 
 	# call the reportbuilderscript to have a shiny html document
-	./reportbuilder.sh analyses/$FOLDER > analyses/$FOLDER/index.html 
+	./reportbuilder.sh $FOLDER > $FOLDER/index.html 
 }
 
 # use out intent caller to call some various intents and hope for the best (worst)
@@ -44,18 +46,31 @@ function intentCaller {
 }
 
 emulator -avd $AVD -no-snapshot-save -snapshot original_state -no-audio &
-echo $! > $PIDFILE
+echo $! >> $PIDFILE
 
 # need to wait because we need a started emulator...
 ./wait.sh 30
 
 # now we repackage the apk file
-./APIMonitor/apimonitor.py $1
+./APIMonitor/apimonitor.py $1 | tee .tmpapimon
+
+NEWAPP=$(grep "NEW APK:" .tmpapimon | cut -d ':' -f 2) 
+rm .tmpapimon
 
 # the repackaged apk can now be installed and droidbox will analyse the log...
 # TODO wait for fixed droidbox version...
-adb logcat -c | adb logcat DroidBox:V *:S | tee adb_logcat.log | python scripts/droidbox.py /home/reox/Desktop/D363_new.apk $TIME | tee droidbox.log
+adb logcat -c
+adb logcat DroidBox:V *:S > adb_logcat.log &
+echo $! >> $PIDFILE 
+
+# install the package
+adb install $NEWAPP
+# now start the view activity
+# TODO which Activity to start?
+adb shell "am start -a android.intent.action.VIEW -n $(./getAPKInformation.py -ap -va -f /home/reox/Desktop/D363.apk | xargs | tr ' ' /)"
+# Now wait and gather logs...
+./wait.sh $TIME
 
 cat $PIDFILE | while read pid; do kill $pid; done
 rm $PIDFILE
-report $PWD/sample_repack.apk
+report $NEWAPP $1

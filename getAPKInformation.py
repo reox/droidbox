@@ -21,6 +21,8 @@ parser.add_argument("-x", "--permissions", dest="perm", action='store_true', hel
 parser.add_argument("-av", "--android-version", dest="aver", action='store_true', help="Gets the APK Version Number (App Version)")
 parser.add_argument("-ap", "--android-package", dest="apack", action='store_true', help="Gets the APK Package Name")
 parser.add_argument("-ac", "--android-code", dest="acode", action='store_true', help="Gets the APK Version Code (App Version)")
+parser.add_argument("-va", "--view-activity", dest="va", action='store_true', help="Gets the APK's View Activity")
+parser.add_argument("-ma", "--main-activity", dest="ma", action='store_true', help="Gets the APK's Main Activity")
 
 args = parser.parse_args()
 
@@ -78,3 +80,17 @@ for apk_file in args.filename:
                 if args.acode:
                     print manifest.getAttribute("android:versionCode")
                    
+        if args.va:
+            for i in a.xml :
+                for item in a.xml[i].getElementsByTagName("activity") :
+                    for sitem in item.getElementsByTagName( "action" ) :
+                        if sitem.getAttribute("android:name") == "android.intent.action.VIEW":
+                            print item.getAttribute( "android:name" )
+                            sys.exit(0)
+
+        if args.ma:
+            for i in a.xml :
+                for item in a.xml[i].getElementsByTagName("activity") :
+                    for sitem in item.getElementsByTagName( "action" ) :
+                        if sitem.getAttribute("android:name") == "android.intent.action.MAIN":
+                            print item.getAttribute( "android:name" )

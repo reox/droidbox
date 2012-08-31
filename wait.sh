@@ -1,7 +1,7 @@
 #!/bin/bash
 # This is a very simple bash script which shows a progressbar and waits for the amount of time
 
-echo "waiting $1 seconds to emulator come up"
+echo "waiting $1 seconds"
 for i in $(seq 0 $1); do
     cols=$(($(tput cols)-2))
     echo -n "["
