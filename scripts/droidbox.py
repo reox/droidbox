@@ -653,13 +653,18 @@ ax.set_yticklabels(ylabels)
 # Create zebra stripes on y-axis
 yTickPos,_ = plt.yticks()
 yTickPos = yTickPos[:-1]
-ax.barh(yTickPos, [duration] * len(yTickPos), height=(yTickPos[1]-yTickPos[0]), color=['#FFFFCC','w'], linewidth=0.0)
+if duration == 0:
+    d_axis = 300
+else:
+    d_axis = duration
+
+ax.barh(yTickPos, [d_axis] * len(yTickPos), height=(yTickPos[1]-yTickPos[0]), color=['#FFFFCC','w'], linewidth=0.0)
 grid(True)
 
 xlabel('timestamp', {'fontsize': 18})
 ylabel('activity', {'fontsize': 18})
 try:
-    ax.set_xlim(0, duration)#result[len(result)-1])
+    ax.set_xlim(0, d_axis)#result[len(result)-1])
 except:
     sys.exit(1)
 

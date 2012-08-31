@@ -4,7 +4,7 @@
 # * 
 
 # Settings
-AVD=DroidBox
+AVD=Analyse
 TIME=60
 PIDFILE=emu.pid
 PACKAGE=$(aapt dump badging $1 | egrep package | egrep -o "name.*" | cut -d "'" -f 2)
@@ -19,14 +19,6 @@ function screenshooter {
         rm fb0 fb0.888
         sleep 10
     done
-}
-
-# cleanup function
-function cleanup {
-	cat $PIDFILE | while read pid; do kill $pid; done
-	rm $PIDFILE
-	rm ${HOME}/.android/avd/${AVD}.avd/cache.img 
-
 }
 
 function report {
@@ -51,14 +43,19 @@ function intentCaller {
 	done
 }
 
-emulator -avd $AVD -system images/system.img -ramdisk images/ramdisk.img -kernel images/zImage -wipe-data -prop dalvik.vm.execution-mode=int:portable &
+emulator -avd $AVD -no-snapshot-save -snapshot original_state -no-audio &
 echo $! > $PIDFILE
 
 # need to wait because we need a started emulator...
-./wait.sh 105
+./wait.sh 30
 
-# because droidbox will now terminate correctly, no need for killing after
-./droidbox.sh $1 $TIME | tee droidbox.log
+# now we repackage the apk file
+./APIMonitor/apimonitor.py $1
 
-cleanup
-report
+# the repackaged apk can now be installed and droidbox will analyse the log...
+# TODO wait for fixed droidbox version...
+adb logcat -c | adb logcat DroidBox:V *:S | tee adb_logcat.log | python scripts/droidbox.py /home/reox/Desktop/D363_new.apk $TIME | tee droidbox.log
+
+cat $PIDFILE | while read pid; do kill $pid; done
+rm $PIDFILE
+report $PWD/sample_repack.apk
