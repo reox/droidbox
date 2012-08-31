@@ -73,4 +73,4 @@ adb shell "am start -a android.intent.action.MAIN -n $(./getAPKInformation.py -a
 
 cat $PIDFILE | while read pid; do kill $pid; done
 rm $PIDFILE
-report $NEWAPP $1
+# report $NEWAPP $1

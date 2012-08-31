@@ -654,7 +654,7 @@ ax.set_yticklabels(ylabels)
 yTickPos,_ = plt.yticks()
 yTickPos = yTickPos[:-1]
 if duration == 0:
-    d_axis = 300
+    d_axis = time.time() - timeStamp
 else:
     d_axis = duration
 
