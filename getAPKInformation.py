@@ -6,7 +6,6 @@ from argparse import ArgumentParser
 
 import sys
 import os
-sys.path.append("/home/reox/tools/androguard/") 
 
 from androguard.core.bytecodes import dvm, apk
 
