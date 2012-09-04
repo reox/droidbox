@@ -45,11 +45,13 @@ function intentCaller {
 	done
 }
 
-emulator -avd $AVD -no-snapshot-save -snapshot original_state -no-audio &
-echo $! >> $PIDFILE
-
-# need to wait because we need a started emulator...
-./wait.sh 30
+if [ "$(adb devices | grep -o emulator)" = "emulator" ]; then
+	# in case an emulator is allready running, just reset to the snapshot
+	echo -e "avd snapshot load original_state\nexit" | nc localhost 5554
+else
+	emulator -avd $AVD -no-snapshot-save -snapshot original_state -no-audio &
+	echo $! >> $PIDFILE
+fi
 
 # now we repackage the apk file
 ./APIMonitor/apimonitor.py $1 | tee .tmpapimon
